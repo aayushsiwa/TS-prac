@@ -9,5 +9,5 @@ const nu1 = '2';
 const nu2 = 3.8;
 const pr=true;
 
-const res = add(nu1, nu2,pr);
+const res = add(+nu1, nu2,pr);
 console.log(res);
