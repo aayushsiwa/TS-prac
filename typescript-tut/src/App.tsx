@@ -1,6 +1,15 @@
 import React, { FormEvent, JSX, useEffect, useState } from "react";
 import { Delete, Done, Edit } from "@mui/icons-material";
-import "./App.css";
+import {
+    Button,
+    ButtonGroup,
+    Container,
+    Paper,
+    Snackbar,
+    TextField,
+    List,
+    ListItem,
+} from "@mui/material";
 
 type Task = {
     id: string;
@@ -97,36 +106,36 @@ function App() {
 
     tasks.forEach((task) => {
         const taskElement = (
-            <span
+            <ListItem
                 key={task.id}
-                className={`task ${task.done ? "doneTask" : "pendingTask"}`}
+                sx={{ display: "flex", justifyContent: "space-between" }}
             >
                 {task.content}
-                <div className="taskButtons">
+                <ButtonGroup variant="text">
                     {!task.done && (
-                        <button
+                        <Button
                             className="taskDoneButton"
                             onClick={() => {
                                 handleTaskDone(task);
                             }}
                         >
                             <Done />
-                        </button>
+                        </Button>
                     )}
-                    <button
+                    <Button
                         className="taskEditButton"
                         onClick={() => handleTaskEdit(task.id)}
                     >
                         <Edit />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         className="taskDeleteButton"
                         onClick={() => handleTaskDelete(task.id)}
                     >
                         <Delete />
-                    </button>
-                </div>
-            </span>
+                    </Button>
+                </ButtonGroup>
+            </ListItem>
         );
 
         task.done
@@ -135,13 +144,15 @@ function App() {
     });
 
     return (
-        <div className="App">
-            {err && <div id="error">{err}</div>}
+        <Container>
+            {err && (
+                <Snackbar message={err} open={!!err} autoHideDuration={6000} />
+            )}
             <div className="heading">Taskify</div>
             {/* form for task */}
 
             <form id="taskForm" onSubmit={handleSubmit}>
-                <input
+                <TextField
                     type="text"
                     name="taskContent"
                     id="taskContent"
@@ -151,27 +162,37 @@ function App() {
                     }}
                     value={taskContent}
                 />
-                <input
+                <Button
+                    variant="contained"
+                    color="primary"
                     type="submit"
                     value="go"
                     id="taskSubmit"
                     name="taskSubmit"
-                />
+                >
+                    submit
+                </Button>
             </form>
 
             {/* two lists, one for pending, one for done */}
 
             {tasks.length > 0 && (
-                <div id="lists">
-                    <div className="taskPending taskList">
-                        <div>{pendingTasks}</div>
-                    </div>
-                    <div className="taskDone taskList">
-                        <div>{doneTasks}</div>
-                    </div>
-                </div>
+                <Container
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 2,
+                    }}
+                >
+                    <List sx={{ width: "50%", backgroundColor: "green" }}>
+                        {pendingTasks}
+                    </List>
+                    <List sx={{ width: "50%", backgroundColor: "red", color: "white" }}>
+                        {doneTasks}
+                    </List>
+                </Container>
             )}
-        </div>
+        </Container>
     );
 }
 
