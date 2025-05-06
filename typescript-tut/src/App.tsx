@@ -1,14 +1,16 @@
 import React, { FormEvent, JSX, useEffect, useState } from "react";
-import { Delete, Done, Edit } from "@mui/icons-material";
+import { Delete, Done, Edit, Restore } from "@mui/icons-material";
 import {
     Button,
     ButtonGroup,
     Container,
-    Paper,
     Snackbar,
     TextField,
     List,
     ListItem,
+    Typography,
+    Box,
+    Alert,
 } from "@mui/material";
 
 type Task = {
@@ -68,13 +70,13 @@ function App() {
         localStorage.setItem("tasks", JSON.stringify(tasks));
     }, [tasks]);
 
-    const handleTaskDone = (task: Task) => {
+    const handleTaskDoneToggle = (task: Task) => {
         setTasks((prev) =>
             prev.map((t) =>
                 t.id === task.id
                     ? {
                           ...t,
-                          done: true,
+                          done: !t.done,
                       }
                     : t
             )
@@ -93,14 +95,6 @@ function App() {
         setTask(t);
     };
 
-    useEffect(() => {
-        setTimeout(() => {
-            if (err) {
-                setErr("");
-            }
-        }, 5000);
-    }, [err]);
-
     const doneTasks: JSX.Element[] = [];
     const pendingTasks: JSX.Element[] = [];
 
@@ -108,29 +102,48 @@ function App() {
         const taskElement = (
             <ListItem
                 key={task.id}
-                sx={{ display: "flex", justifyContent: "space-between" }}
+                sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    border: "2px solid black",
+                    borderRadius: "5rem",
+                    marginBottom: "1rem",
+                    backgroundColor: "white",
+                    userSelect: "none",
+                    cursor: "pointer",
+                }}
             >
-                {task.content}
-                <ButtonGroup variant="text">
-                    {!task.done && (
-                        <Button
-                            className="taskDoneButton"
-                            onClick={() => {
-                                handleTaskDone(task);
-                            }}
-                        >
-                            <Done />
-                        </Button>
-                    )}
+                <Typography
+                    sx={{
+                        fontFamily: "monospace",
+                        fontWeight: "bold",
+                    }}
+                >
+                    {task.content}
+                </Typography>
+                <ButtonGroup variant="outlined">
+                    {/* {!task.done && ( */}
+                    <Button
+                        className="taskDoneButton"
+                        onClick={() => {
+                            handleTaskDoneToggle(task);
+                        }}
+                        color="primary"
+                    >
+                        {task.done ? <Restore /> : <Done />}
+                    </Button>
+                    {/* )} */}
                     <Button
                         className="taskEditButton"
                         onClick={() => handleTaskEdit(task.id)}
+                        color="warning"
                     >
                         <Edit />
                     </Button>
                     <Button
                         className="taskDeleteButton"
                         onClick={() => handleTaskDelete(task.id)}
+                        color="error"
                     >
                         <Delete />
                     </Button>
@@ -144,14 +157,58 @@ function App() {
     });
 
     return (
-        <Container>
+        <Container
+            maxWidth="lg"
+            sx={{
+                height: "100vh",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                fontFamily: `"Consolas","Courier New","monospace"`,
+                paddingY: "2rem",
+            }}
+        >
             {err && (
-                <Snackbar message={err} open={!!err} autoHideDuration={6000} />
+                <Snackbar
+                    message={err}
+                    open={!!err}
+                    autoHideDuration={6000}
+                    onClose={() => setErr("")}
+                >
+                    <Alert
+                        severity="error"
+                        variant="filled"
+                        sx={{
+                            backgroundColor: "#ff000090",
+                            fontWeight: "bold",
+                            backdropFilter: "blur(1px)",
+                            border: "2px solid #f00",
+                        }}
+                    >
+                        {err}
+                    </Alert>
+                </Snackbar>
             )}
-            <div className="heading">Taskify</div>
+            <Typography
+                variant="h4"
+                sx={{
+                    fontFamily: "monospace",
+                    fontWeight: "bold",
+                    marginBottom: "1rem",
+                    userSelect: "none",
+                }}
+            >
+                Taskify
+            </Typography>
             {/* form for task */}
 
-            <form id="taskForm" onSubmit={handleSubmit}>
+            <Box
+                width="100%"
+                component={"form"}
+                onSubmit={handleSubmit}
+                position={"relative"}
+                marginBottom={2}
+            >
                 <TextField
                     type="text"
                     name="taskContent"
@@ -160,37 +217,107 @@ function App() {
                     onChange={(e) => {
                         setTaskContent(e.target.value);
                     }}
+                    fullWidth
+                    sx={{
+                        // paddingRight: "10%",
+                        borderRadius: "1rem",
+                        border: "2px solid #000",
+                        overflow: "hidden",
+                        backgroundColor: "#fff",
+                        input: {
+                            fontWeight: "bold",
+                            fontSize: "1rem",
+                        },
+                        "&:focus": {
+                            outline: "none",
+                        },
+                    }}
                     value={taskContent}
                 />
                 <Button
                     variant="contained"
-                    color="primary"
                     type="submit"
                     value="go"
                     id="taskSubmit"
                     name="taskSubmit"
+                    sx={{
+                        position: "absolute",
+                        top: "50%",
+                        right: 0,
+                        transform: "translateY(-50%)",
+                        height: "80%",
+                        marginRight: "4px",
+                        width: "10%",
+                        fontWeight: "bold",
+                        borderRadius: "0px 1rem 1rem 0px",
+                        border: "2px solid #145efb",
+                        backgroundColor: taskContent ? "primary" : "grey",
+                        color: "black",
+                        transition: "background-color 0.3s",
+                        zIndex: 2,
+                    }}
                 >
                     submit
                 </Button>
-            </form>
+            </Box>
 
             {/* two lists, one for pending, one for done */}
 
             {tasks.length > 0 && (
-                <Container
+                <Box
                     sx={{
                         display: "flex",
-                        justifyContent: "space-between",
+                        flexWrap: "wrap",
                         gap: 2,
+                        width: "100%",
+                        paddingBottom: "2rem",
                     }}
                 >
-                    <List sx={{ width: "50%", backgroundColor: "green" }}>
-                        {pendingTasks}
-                    </List>
-                    <List sx={{ width: "50%", backgroundColor: "red", color: "white" }}>
-                        {doneTasks}
-                    </List>
-                </Container>
+                    <Box
+                        flex={1}
+                        sx={{
+                            backgroundColor: "#ff000095",
+                            backdropFilter: "blur(1px)",
+                            borderRadius: 2,
+                            padding: 2,
+                        }}
+                    >
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontFamily: "monospace",
+                                fontWeight: "bold",
+                                color: "white",
+                                mb: 1,
+                            }}
+                        >
+                            Pending
+                        </Typography>
+                        <List>{pendingTasks}</List>
+                    </Box>
+                    <Box
+                        flex={1}
+                        sx={{
+                            backgroundColor: "#00800095",
+                            backdropFilter: "blur(1px)",
+                            borderRadius: 2,
+                            padding: 2,
+                        }}
+                    >
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontFamily: "monospace",
+                                fontWeight: "bold",
+                                color: "white",
+                                mb: 1,
+                            }}
+                        >
+                            Done
+                        </Typography>
+                        <List>{doneTasks}</List>
+                    </Box>
+                </Box>
             )}
         </Container>
     );
