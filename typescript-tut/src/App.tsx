@@ -1,39 +1,54 @@
-import React, { FormEvent, JSX, useEffect, useState } from "react";
-import { Delete, Done, Edit, Restore } from "@mui/icons-material";
+import { FormEvent, JSX, useState } from "react";
+// import { Delete, Done, Edit, Restore } from "@mui/icons-material";
 import {
-    Button,
-    ButtonGroup,
+    // Button,
+    // ButtonGroup,
     Container,
-    Snackbar,
-    TextField,
-    List,
-    ListItem,
+    // Snackbar,
+    // TextField,
+    // List,
+    // ListItem,
     Typography,
-    Box,
-    Alert,
+    // Box,
+    // Alert,
 } from "@mui/material";
+import TaskElement from "./components/TaskElement";
+import { AlertSB, AlertSeverity, Task } from "./types";
+import TaskForm from "./components/TaskForm";
+import TaskLists from "./components/TaskLists";
+import AlertSnackBar from "./components/AlertSnackBar";
+import { motion } from "framer-motion";
+// import useLocalStorage from "./useLocalStorage";
+import useTasks from "./hooks/useTasks";
 
-type Task = {
-    id: string;
-    content: string;
-    done: boolean;
-};
+// type Task = {
+//     id: string;
+//     content: string;
+//     done: boolean;
+// };
 
 function App() {
-    const [tasks, setTasks] = useState<Task[]>(() => {
-        const storedTasks = localStorage.getItem("tasks");
-        return storedTasks ? JSON.parse(storedTasks) : [];
-    });
+    const { tasks, setTasks, handleTaskDelete, handleTaskDoneToggle, addTask } =
+        useTasks();
+    // const [tasks, setTasks] = useState<Task[]>(() => {
+    //     const storedTasks = localStorage.getItem("tasks");
+    //     return storedTasks ? JSON.parse(storedTasks) : [];
+    // });
     const [taskContent, setTaskContent] = useState<string>("");
     const [task, setTask] = useState<Task>({} as Task);
-    const [err, setErr] = useState<string>("");
+    const [alert, setAlert] = useState<AlertSB>({
+        alert: "",
+    });
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         // console.log("task", task);
         if (taskContent.trim() === "") {
-            setErr("Please enter a task");
-            console.warn(err);
+            setAlert({
+                alert: "Please enter a task",
+                severity: AlertSeverity.Error,
+            });
+            // console.warn(alert);
             return;
         }
         if (task.id) {
@@ -48,48 +63,21 @@ function App() {
                         : t
                 )
             );
-        } else {
-            setTasks((prev) => {
-                return [
-                    ...prev,
-                    {
-                        // id: `${new Date().getTime().toString()} + "userid"`,
-                        id: `userid${Date.now()}`,
-                        content: taskContent,
-                        done: false,
-                    },
-                ];
+            setAlert({
+                alert: "Task updated",
+                severity: AlertSeverity.Success,
             });
+        } else {
+            addTask(taskContent);
+            setAlert({ alert: "Task added", severity: AlertSeverity.Success });
         }
 
         setTaskContent("");
         setTask({} as Task);
     };
 
-    useEffect(() => {
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-    }, [tasks]);
-
-    const handleTaskDoneToggle = (task: Task) => {
-        setTasks((prev) =>
-            prev.map((t) =>
-                t.id === task.id
-                    ? {
-                          ...t,
-                          done: !t.done,
-                      }
-                    : t
-            )
-        );
-    };
-
-    const handleTaskDelete = (id: string) => {
-        console.log("delete task", id);
-        setTasks((prev) => prev.filter((t) => t.id !== id));
-    };
-
     const handleTaskEdit = (id: string) => {
-        console.log("edit task", id);
+        // console.log("edit task", id);
         const t = tasks.find((t) => t.id === id)!;
         setTaskContent(t.content);
         setTask(t);
@@ -99,61 +87,32 @@ function App() {
     const pendingTasks: JSX.Element[] = [];
 
     tasks.forEach((task) => {
-        const taskElement = (
-            <ListItem
-                key={task.id}
-                sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    border: "2px solid black",
-                    borderRadius: "5rem",
-                    marginBottom: "1rem",
-                    backgroundColor: "white",
-                    userSelect: "none",
-                    cursor: "pointer",
-                }}
-            >
-                <Typography
-                    sx={{
-                        fontFamily: "monospace",
-                        fontWeight: "bold",
-                    }}
-                >
-                    {task.content}
-                </Typography>
-                <ButtonGroup variant="outlined">
-                    {/* {!task.done && ( */}
-                    <Button
-                        className="taskDoneButton"
-                        onClick={() => {
-                            handleTaskDoneToggle(task);
-                        }}
-                        color="primary"
-                    >
-                        {task.done ? <Restore /> : <Done />}
-                    </Button>
-                    {/* )} */}
-                    <Button
-                        className="taskEditButton"
-                        onClick={() => handleTaskEdit(task.id)}
-                        color="warning"
-                    >
-                        <Edit />
-                    </Button>
-                    <Button
-                        className="taskDeleteButton"
-                        onClick={() => handleTaskDelete(task.id)}
-                        color="error"
-                    >
-                        <Delete />
-                    </Button>
-                </ButtonGroup>
-            </ListItem>
-        );
+        // <TaskElement
+        //     task={task}
+        //     taskDelete={handleTaskDelete}
+        //     taskEdit={handleTaskEdit}
+        //     taskToggle={handleTaskDoneToggle}
+        // />
 
         task.done
-            ? doneTasks.push(taskElement)
-            : pendingTasks.push(taskElement);
+            ? doneTasks.push(
+                  <TaskElement
+                      key={task.id}
+                      task={task}
+                      taskDelete={handleTaskDelete}
+                      taskEdit={handleTaskEdit}
+                      taskToggle={handleTaskDoneToggle}
+                  />
+              )
+            : pendingTasks.push(
+                  <TaskElement
+                      key={task.id}
+                      task={task}
+                      taskDelete={handleTaskDelete}
+                      taskEdit={handleTaskEdit}
+                      taskToggle={handleTaskDoneToggle}
+                  />
+              );
     });
 
     return (
@@ -168,26 +127,12 @@ function App() {
                 paddingY: "2rem",
             }}
         >
-            {err && (
-                <Snackbar
-                    message={err}
-                    open={!!err}
-                    autoHideDuration={6000}
-                    onClose={() => setErr("")}
-                >
-                    <Alert
-                        severity="error"
-                        variant="filled"
-                        sx={{
-                            backgroundColor: "#ff000090",
-                            fontWeight: "bold",
-                            backdropFilter: "blur(1px)",
-                            border: "2px solid #f00",
-                        }}
-                    >
-                        {err}
-                    </Alert>
-                </Snackbar>
+            {alert.alert && (
+                <AlertSnackBar
+                    key={alert.alert}
+                    alert={alert}
+                    setAlert={setAlert}
+                />
             )}
             <Typography
                 variant="h4"
@@ -202,122 +147,36 @@ function App() {
             </Typography>
             {/* form for task */}
 
-            <Box
-                width="100%"
-                component={"form"}
-                onSubmit={handleSubmit}
-                position={"relative"}
-                marginBottom={2}
-            >
-                <TextField
-                    type="text"
-                    name="taskContent"
-                    id="taskContent"
-                    placeholder="enter task here"
-                    onChange={(e) => {
-                        setTaskContent(e.target.value);
-                    }}
-                    fullWidth
-                    sx={{
-                        // paddingRight: "10%",
-                        borderRadius: "1rem",
-                        border: "2px solid #000",
-                        overflow: "hidden",
-                        backgroundColor: "#fff",
-                        input: {
-                            fontWeight: "bold",
-                            fontSize: "1rem",
-                        },
-                        "&:focus": {
-                            outline: "none",
-                        },
-                    }}
-                    value={taskContent}
-                />
-                <Button
-                    variant="contained"
-                    type="submit"
-                    value="go"
-                    id="taskSubmit"
-                    name="taskSubmit"
-                    sx={{
-                        position: "absolute",
-                        top: "50%",
-                        right: 0,
-                        transform: "translateY(-50%)",
-                        height: "80%",
-                        marginRight: "4px",
-                        width: "10%",
-                        fontWeight: "bold",
-                        borderRadius: "0px 1rem 1rem 0px",
-                        border: "2px solid #145efb",
-                        backgroundColor: taskContent ? "primary" : "grey",
-                        color: "black",
-                        transition: "background-color 0.3s",
-                        zIndex: 2,
-                    }}
-                >
-                    submit
-                </Button>
-            </Box>
+            <TaskForm
+                taskContent={taskContent}
+                setTaskContent={setTaskContent}
+                handleSubmit={handleSubmit}
+            />
 
             {/* two lists, one for pending, one for done */}
 
-            {tasks.length > 0 && (
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: 2,
-                        width: "100%",
-                        paddingBottom: "2rem",
-                    }}
+            {tasks.length > 0 ? (
+                <TaskLists pendingTasks={pendingTasks} doneTasks={doneTasks} />
+            ) : (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    // exit={{ opacity: 0, y: -20 }}
+                    transition={{ delay: 0.3, duration: 0.3 }}
+                    // style={{ width: "100%" }}
                 >
-                    <Box
-                        flex={1}
+                    <Typography
+                        variant="h6"
                         sx={{
-                            backgroundColor: "#ff000095",
-                            backdropFilter: "blur(1px)",
-                            borderRadius: 2,
-                            padding: 2,
+                            fontFamily: "monospace",
+                            fontWeight: "bold",
+                            marginTop: "1rem",
+                            userSelect: "none",
                         }}
                     >
-                        <Typography
-                            variant="h6"
-                            sx={{
-                                fontFamily: "monospace",
-                                fontWeight: "bold",
-                                color: "white",
-                                mb: 1,
-                            }}
-                        >
-                            Pending
-                        </Typography>
-                        <List>{pendingTasks}</List>
-                    </Box>
-                    <Box
-                        flex={1}
-                        sx={{
-                            backgroundColor: "#00800095",
-                            backdropFilter: "blur(1px)",
-                            borderRadius: 2,
-                            padding: 2,
-                        }}
-                    >
-                        <Typography
-                            variant="h6"
-                            sx={{
-                                fontFamily: "monospace",
-                                fontWeight: "bold",
-                                color: "white",
-                                mb: 1,
-                            }}
-                        >
-                            Done
-                        </Typography>
-                        <List>{doneTasks}</List>
-                    </Box>
-                </Box>
+                        No tasks yet
+                    </Typography>
+                </motion.div>
             )}
         </Container>
     );
