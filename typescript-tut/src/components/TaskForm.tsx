@@ -20,6 +20,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 onSubmit={handleSubmit}
                 position={"relative"}
                 marginBottom={2}
+                color={"black"}
             >
                 <TextField
                     type="text"
@@ -32,25 +33,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
                     fullWidth
                     sx={{
                         // paddingRight: "10%",
-                        borderRadius: "1rem",
-                        border: "2px solid #000",
-                        overflow: "hidden",
-                        backgroundColor: "#fff",
-                        input: {
-                            fontWeight: "bold",
-                            fontSize: "1rem",
-                        },
-                        "& .MuiOutlinedInput-root": {
-                            "& fieldset": {
-                                border: "none",
-                            },
-                            "&:hover fieldset": {
-                                border: "none",
-                            },
-                            "&.Mui-focused fieldset": {
-                                border: "none",
-                            },
-                        },
                     }}
                     value={taskContent}
                 />

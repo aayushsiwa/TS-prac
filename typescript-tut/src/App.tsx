@@ -1,68 +1,37 @@
-import { FormEvent, JSX, useState } from "react";
-// import { Delete, Done, Edit, Restore } from "@mui/icons-material";
-import {
-    // Button,
-    // ButtonGroup,
-    Container,
-    // Snackbar,
-    // TextField,
-    // List,
-    // ListItem,
-    Typography,
-    // Box,
-    // Alert,
-} from "@mui/material";
+import { FormEvent, useState, useMemo, JSX, useCallback } from "react";
+import { Container, Typography } from "@mui/material";
 import TaskElement from "./components/TaskElement";
-import { AlertSB, AlertSeverity, Task } from "./types";
+import { AlertSeverity, Task } from "./types";
 import TaskForm from "./components/TaskForm";
 import TaskLists from "./components/TaskLists";
 import AlertSnackBar from "./components/AlertSnackBar";
 import { motion } from "framer-motion";
-// import useLocalStorage from "./useLocalStorage";
 import useTasks from "./hooks/useTasks";
-
-// type Task = {
-//     id: string;
-//     content: string;
-//     done: boolean;
-// };
+import ThemeSwitch from "./components/ThemeToggle";
 
 function App() {
-    const { tasks, setTasks, handleTaskDelete, handleTaskDoneToggle, addTask } =
-        useTasks();
-    // const [tasks, setTasks] = useState<Task[]>(() => {
-    //     const storedTasks = localStorage.getItem("tasks");
-    //     return storedTasks ? JSON.parse(storedTasks) : [];
-    // });
-    const [taskContent, setTaskContent] = useState<string>("");
-    const [task, setTask] = useState<Task>({} as Task);
-    const [alert, setAlert] = useState<AlertSB>({
-        alert: "",
-    });
+    const {
+        tasks,
+        alert,
+        setAlert,
+        handleTaskDelete,
+        handleTaskDoneToggle,
+        addTask,
+        updateTask,
+        taskContent,
+        setTaskContent,
+        validateTask,
+        EMPTY_TASK,
+    } = useTasks();
+    const [task, setTask] = useState<Task>(EMPTY_TASK);
+    const isEditing = !!task.id;
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         // console.log("task", task);
-        if (taskContent.trim() === "") {
-            setAlert({
-                alert: "Please enter a task",
-                severity: AlertSeverity.Error,
-            });
-            // console.warn(alert);
-            return;
-        }
-        if (task.id) {
-            // setTaskContent(task.content);
-            setTasks((prev) =>
-                prev.map((t) =>
-                    t.id === task.id
-                        ? {
-                              ...t,
-                              content: taskContent,
-                          }
-                        : t
-                )
-            );
+        if (!validateTask()) return;
+        if (isEditing) {
+            updateTask({ ...task, content: taskContent });
             setAlert({
                 alert: "Task updated",
                 severity: AlertSeverity.Success,
@@ -73,47 +42,58 @@ function App() {
         }
 
         setTaskContent("");
-        setTask({} as Task);
+        setTask(EMPTY_TASK);
     };
 
-    const handleTaskEdit = (id: string) => {
-        // console.log("edit task", id);
-        const t = tasks.find((t) => t.id === id)!;
-        setTaskContent(t.content);
-        setTask(t);
-    };
+    const handleTaskEdit = useCallback(
+        (id: string) => {
+            // console.log("edit task", id);
+            const t = tasks.find((t) => t.id === id);
+            if (!t) return;
+            setTaskContent(t.content);
+            setTask(t);
+        },
+        [tasks, setTaskContent]
+    );
 
-    const doneTasks: JSX.Element[] = [];
-    const pendingTasks: JSX.Element[] = [];
+    // const doneTasks: JSX.Element[] = [];
+    // const pendingTasks: JSX.Element[] = [];
 
-    tasks.forEach((task) => {
-        // <TaskElement
-        //     task={task}
-        //     taskDelete={handleTaskDelete}
-        //     taskEdit={handleTaskEdit}
-        //     taskToggle={handleTaskDoneToggle}
-        // />
+    // const renderTasks = tasks.map((task) => {
+    //     return (
+    //         <TaskElement
+    //             task={task}
+    //             taskDelete={handleTaskDelete}
+    //             taskEdit={handleTaskEdit}
+    //             taskToggle={handleTaskDoneToggle}
+    //         />
+    //     );
+    // });
 
-        task.done
-            ? doneTasks.push(
-                  <TaskElement
-                      key={task.id}
-                      task={task}
-                      taskDelete={handleTaskDelete}
-                      taskEdit={handleTaskEdit}
-                      taskToggle={handleTaskDoneToggle}
-                  />
-              )
-            : pendingTasks.push(
-                  <TaskElement
-                      key={task.id}
-                      task={task}
-                      taskDelete={handleTaskDelete}
-                      taskEdit={handleTaskEdit}
-                      taskToggle={handleTaskDoneToggle}
-                  />
-              );
-    });
+    // const doneTasks = useMemo(() => {
+    //     return renderTasks.filter((element) => element.props.task.done);
+    // }, [renderTasks]);
+    // const pendingTasks = useMemo(() => {
+    //     return renderTasks.filter((element) => !element.props.task.done);
+    // }, [renderTasks]);
+
+    const [pendingTasks, doneTasks] = useMemo(() => {
+        const pending: JSX.Element[] = [];
+        const done: JSX.Element[] = [];
+        tasks.forEach((task) => {
+            const taskEl = (
+                <TaskElement
+                    key={task.id}
+                    task={task}
+                    taskDelete={handleTaskDelete}
+                    taskEdit={handleTaskEdit}
+                    taskToggle={handleTaskDoneToggle}
+                />
+            );
+            task.done ? done.push(taskEl) : pending.push(taskEl);
+        });
+        return [pending, done];
+    }, [tasks, handleTaskDelete, handleTaskDoneToggle, handleTaskEdit]);
 
     return (
         <Container
@@ -123,7 +103,8 @@ function App() {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                fontFamily: `"Consolas","Courier New","monospace"`,
+                fontFamily: "monospace",
+                fontWeight: "bold",
                 paddingY: "2rem",
             }}
         >
@@ -137,14 +118,13 @@ function App() {
             <Typography
                 variant="h4"
                 sx={{
-                    fontFamily: "monospace",
-                    fontWeight: "bold",
                     marginBottom: "1rem",
                     userSelect: "none",
                 }}
             >
                 Taskify
             </Typography>
+            <ThemeSwitch />
             {/* form for task */}
 
             <TaskForm
@@ -168,8 +148,6 @@ function App() {
                     <Typography
                         variant="h6"
                         sx={{
-                            fontFamily: "monospace",
-                            fontWeight: "bold",
                             marginTop: "1rem",
                             userSelect: "none",
                         }}

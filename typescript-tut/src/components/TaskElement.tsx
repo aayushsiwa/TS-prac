@@ -8,14 +8,6 @@ const TaskElement = (props: TaskElementProps) => {
         <ListItem
             key={props.task.id}
             sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                border: "2px solid black",
-                borderRadius: "5rem",
-                marginBottom: "1rem",
-                backgroundColor: "white",
-                userSelect: "none",
-                cursor: "pointer",
             }}
         >
             <Typography

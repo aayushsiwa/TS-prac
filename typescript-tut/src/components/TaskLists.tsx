@@ -52,18 +52,16 @@ const TaskLists = (props: TaskListsProps) => {
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                fontFamily: "monospace",
-                                fontWeight: "bold",
                                 color: "#ff0000",
-                                backgroundColor: "#fff",
-                                backdropFilter: "",
+                                backgroundColor: "text.secondary",
                                 borderRadius: 100,
                                 padding: "0rem 1rem",
                                 userSelect: "none",
                             }}
                         >
-                            {pendingTasks?.length > 0 &&
-                                `${pendingTasks?.length}`}
+                            {pendingTasks?.length > 0
+                                ? `${pendingTasks?.length}`
+                                : 0}
                         </Typography>
                     </Box>
                     <List>{pendingTasks}</List>
@@ -99,17 +97,14 @@ const TaskLists = (props: TaskListsProps) => {
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                fontFamily: "monospace",
-                                fontWeight: "bold",
                                 color: "#008000",
-                                backgroundColor: "#fff",
-                                backdropFilter: "",
+                                backgroundColor: "text.secondary",
                                 borderRadius: 100,
                                 padding: "0rem 1rem",
                                 userSelect: "none",
                             }}
                         >
-                            {doneTasks?.length > 0 && `${doneTasks?.length}`}
+                            {doneTasks?.length > 0 ? `${doneTasks?.length}` : 0}
                         </Typography>
                     </Box>
                     <List>{doneTasks}</List>

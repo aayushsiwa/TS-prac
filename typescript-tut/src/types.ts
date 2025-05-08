@@ -7,19 +7,19 @@ type Task = {
 };
 
 export enum AlertSeverity {
-  Error = "error",
-  Warning = "warning",
-  Info = "info",
-  Success = "success",
+    Error = "error",
+    Warning = "warning",
+    Info = "info",
+    Success = "success",
 }
 
 export type AlertSB = {
-  alert: string;
-  autoHideDuration?: number;
-  onClose?: () => void;
-  severity?: AlertSeverity;
-  backgroundColor?: string;
-  fontWeight?: string;
+    alert: string;
+    autoHideDuration?: number;
+    onClose?: () => void;
+    severity?: AlertSeverity;
+    backgroundColor?: string;
+    fontWeight?: string;
 };
 
 type TaskElementProps = {
@@ -44,5 +44,23 @@ export type AlertSnackBarProps = {
     alert: AlertSB;
     setAlert: React.Dispatch<React.SetStateAction<AlertSB>>;
 };
+
+export type ValidateTaskProps = {
+    taskContent: string;
+    setAlert: React.Dispatch<React.SetStateAction<AlertSB>>;
+    AlertSeverity: typeof AlertSeverity;
+};
+
+export type HandleTaskDelete = {
+    id: string;
+    setAlert?: React.Dispatch<React.SetStateAction<AlertSB>>;
+    AlertSeverity?: typeof AlertSeverity;
+};
+
+export type ColorModeContextType = {
+  toggleTheme: () => void;
+  darkMode: boolean;
+};
+
 
 export type { Task, TaskElementProps };
