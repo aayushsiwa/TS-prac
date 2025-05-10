@@ -1,6 +1,6 @@
 import { ListItem, Typography, ButtonGroup, Button } from "@mui/material";
 import { Delete, Done, Edit, Restore } from "@mui/icons-material";
-import { TaskElementProps } from "../types";
+import { TaskElementProps } from "../utils/types";
 import { motion } from "framer-motion";
 
 const TaskElement = (props: TaskElementProps) => {

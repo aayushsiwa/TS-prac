@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Task, AlertSB, AlertSeverity } from "../types";
+import { Task, AlertSB, AlertSeverity } from "../utils/types";
 import useLocalStorage from "./useLocalStorage";
 
 export default function useTasks() {

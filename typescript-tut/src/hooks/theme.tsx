@@ -3,7 +3,7 @@ import { createContext, useContext, useMemo, useState, ReactNode } from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import lightTheme from "../theme/lightTheme";
 import darkTheme from "../theme/darkTheme";
-import { ColorModeContextType } from "../types";
+import { ColorModeContextType } from "../utils/types";
 
 const ColorModeContext = createContext<ColorModeContextType>({
     toggleTheme: () => {},

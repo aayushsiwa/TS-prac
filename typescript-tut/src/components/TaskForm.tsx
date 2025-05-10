@@ -1,5 +1,5 @@
 import { Box, TextField, Button } from "@mui/material";
-import { TaskFormProps } from "../types";
+import { TaskFormProps } from "../utils/types";
 import { motion } from "framer-motion";
 
 const TaskForm: React.FC<TaskFormProps> = ({

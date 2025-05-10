@@ -1,5 +1,5 @@
 import { Box, Typography, List } from "@mui/material";
-import { TaskListsProps } from "../types";
+import { TaskListsProps } from "../utils/types";
 import { motion } from "framer-motion";
 
 const TaskLists = (props: TaskListsProps) => {

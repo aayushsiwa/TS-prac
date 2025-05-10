@@ -1,7 +1,7 @@
 import { FormEvent, useState, useMemo, JSX, useCallback } from "react";
 import { Container, Typography } from "@mui/material";
 import TaskElement from "./components/TaskElement";
-import { AlertSeverity, Task } from "./types";
+import { AlertSeverity, Task } from "./utils/types";
 import TaskForm from "./components/TaskForm";
 import TaskLists from "./components/TaskLists";
 import AlertSnackBar from "./components/AlertSnackBar";

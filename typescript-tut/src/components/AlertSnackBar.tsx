@@ -1,5 +1,5 @@
 import { Snackbar, Alert } from "@mui/material";
-import { AlertSB, AlertSnackBarProps } from "../types";
+import { AlertSB, AlertSnackBarProps } from "../utils/types";
 
 const AlertSnackBar: React.FC<AlertSnackBarProps> = ({ alert, setAlert }) => {
     return (
